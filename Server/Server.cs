@@ -126,13 +126,13 @@ namespace CoopServer
                                 if (response == null)
                                 {
                                     Logging.Error("MasterServer: Something went wrong!");
-                                    break;
+                                    continue;
                                 }
                             }
                             catch (Exception ex)
                             {
                                 Logging.Error($"MasterServer: {ex.Message}");
-                                break;
+                                continue;
                             }
 
                             if (response.StatusCode != System.Net.HttpStatusCode.OK)
@@ -144,8 +144,8 @@ namespace CoopServer
                                 continue;
                             }
 
-                            // Sleep for 12.5s
-                            Thread.Sleep(12500);
+                            // Sleep for 10s
+                            Thread.Sleep(10000);
                         }
                     }
                     catch (HttpRequestException ex)
@@ -749,7 +749,7 @@ namespace CoopServer
                         Position = packet.Position,
                         Latency = packet.Latency
                     }.PacketToNetOutGoingMessage(outgoingMessage);
-                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.UnreliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
+                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.ReliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
                 }
             });
 
@@ -793,7 +793,7 @@ namespace CoopServer
                         Position = packet.Position,
                         Latency = packet.Latency
                     }.PacketToNetOutGoingMessage(outgoingMessage);
-                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.UnreliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
+                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.ReliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
                 }
             });
 
@@ -824,7 +824,7 @@ namespace CoopServer
                 if (Clients.First(y => y.NetHandle == x.RemoteUniqueIdentifier).Player.IsInRangeOf(packet.Position, 550f))
                 {
                     packet.PacketToNetOutGoingMessage(outgoingMessage);
-                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.UnreliableSequenced, (byte)ConnectionChannel.PlayerLight);
+                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.ReliableSequenced, (byte)ConnectionChannel.PlayerLight);
                 }
                 else
                 {
@@ -834,7 +834,7 @@ namespace CoopServer
                         Position = packet.Position,
                         Latency = packet.Latency
                     }.PacketToNetOutGoingMessage(outgoingMessage);
-                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.UnreliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
+                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.ReliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
                 }
             });
 
@@ -865,7 +865,7 @@ namespace CoopServer
                 if (Clients.First(y => y.NetHandle == x.RemoteUniqueIdentifier).Player.IsInRangeOf(packet.Position, 550f))
                 {
                     packet.PacketToNetOutGoingMessage(outgoingMessage);
-                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.UnreliableSequenced, (byte)ConnectionChannel.PlayerLight);
+                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.ReliableSequenced, (byte)ConnectionChannel.PlayerLight);
                 }
                 else
                 {
@@ -875,7 +875,7 @@ namespace CoopServer
                         Position = packet.Position,
                         Latency = packet.Latency
                     }.PacketToNetOutGoingMessage(outgoingMessage);
-                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.UnreliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
+                    MainNetServer.SendMessage(outgoingMessage, x, NetDeliveryMethod.ReliableSequenced, (byte)ConnectionChannel.PlayerSuperLight);
                 }
             });
 

@@ -1070,7 +1070,7 @@ namespace CoopClient
                 }.PacketToNetOutGoingMessage(outgoingMessage);
             }
 
-            Client.SendMessage(outgoingMessage, NetDeliveryMethod.Unreliable, (byte)ConnectionChannel.NPCFull);
+            Client.SendMessage(outgoingMessage, NetDeliveryMethod.UnreliableSequenced, (byte)ConnectionChannel.NPCFull);
             Client.FlushSendQueue();
 
             #if DEBUG
