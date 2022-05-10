@@ -125,7 +125,7 @@ namespace CoopClient.Entities.Player
                     {
                         _isPlayingAnimation = true;
                         _currentAnimation = reloadingAnim;
-                        Character.Task.PlayAnimation(_currentAnimation[0], _currentAnimation[1], 8f, -1, AnimationFlags.AllowRotation | AnimationFlags.UpperBodyOnly);
+                        Character.Task.PlayAnimation(_currentAnimation[0], _currentAnimation[1], 8.0f, -1, AnimationFlags.AllowRotation | AnimationFlags.UpperBodyOnly);
                     }
                 }
             }
@@ -134,6 +134,8 @@ namespace CoopClient.Entities.Player
                 Character.Task.ClearAnimation(_currentAnimation[0], _currentAnimation[1]);
                 _isPlayingAnimation = false;
                 _currentAnimation = new string[2] { "", "" };
+
+                Function.Call(Hash.REFILL_AMMO_INSTANTLY, Character.Handle);
             }
         }
 
