@@ -57,223 +57,15 @@ namespace CoopClient.Entities.Player
                 return;
             }
 
-            if (IsInParachuteFreeFall)
-            {
-                Character.PositionNoOffset = Vector3.Lerp(Character.Position, Position + Velocity, 0.5f);
-                Character.Quaternion = Rotation.ToQuaternion(); 
+            DisplayOnFire();
 
-                if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "skydive@base", "free_idle", 3))
-                {
-                    Function.Call(Hash.TASK_PLAY_ANIM, Character.Handle, LoadAnim("skydive@base"), "free_idle", 8f, 10f, -1, 0, -8f, 1, 1, 1);
-                }
+            if (DisplayParachuteFreeFall() || DisplayParachute() || DisplayOnLadder() || DisplayVaulting() || DisplayJumping() || DisplayRagdoll())
+            {
                 return;
-            }
-
-            if (IsParachuteOpen)
-            {
-                if (ParachuteProp == null)
-                {
-                    Model model = 1740193300.ModelRequest();
-                    if (model != null)
-                    {
-                        ParachuteProp = World.CreateProp(model, Character.Position, Character.Rotation, false, false);
-                        model.MarkAsNoLongerNeeded();
-                        ParachuteProp.IsPositionFrozen = true;
-                        ParachuteProp.IsCollisionEnabled = false;
-
-                        ParachuteProp.AttachTo(Character.Bones[Bone.SkelSpine2], new Vector3(3.6f, 0f, 0f), new Vector3(0f, 90f, 0f));
-                    }
-                    Character.Task.ClearAllImmediately();
-                    Character.Task.ClearSecondary();
-                }
-
-                Character.PositionNoOffset = Vector3.Lerp(Character.Position, Position + Velocity, 0.5f);
-                Character.Quaternion = Rotation.ToQuaternion();
-
-                if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "skydive@parachute@first_person", "chute_idle_right", 3))
-                {
-                    Function.Call(Hash.TASK_PLAY_ANIM, Character, LoadAnim("skydive@parachute@first_person"), "chute_idle_right", 8f, 10f, -1, 0, -8f, 1, 1, 1);
-                }
-
-                return;
-            }
-            if (ParachuteProp != null)
-            {
-                if (ParachuteProp.Exists())
-                {
-                    ParachuteProp.Delete();
-                }
-                ParachuteProp = null;
-            }
-
-            if (IsOnLadder)
-            {
-                if (Velocity.Z < 0)
-                {
-                    string anim = Velocity.Z < -2f ? "slide_climb_down" : "climb_down";
-                    if (_currentAnimation[1] != anim)
-                    {
-                        Character.Task.ClearAllImmediately();
-                        _currentAnimation[1] = anim;
-                    }
-
-                    if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "laddersbase", anim, 3))
-                    {
-                        Character.Task.PlayAnimation("laddersbase", anim, 8f, -1, AnimationFlags.Loop);
-                    }
-                }
-                else
-                {
-                    if (Math.Abs(Velocity.Z) < 0.5)
-                    {
-                        if (_currentAnimation[1] != "base_left_hand_up")
-                        {
-                            Character.Task.ClearAllImmediately();
-                            _currentAnimation[1] = "base_left_hand_up";
-                        }
-
-                        if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "laddersbase", "base_left_hand_up", 3))
-                        {
-                            Character.Task.PlayAnimation("laddersbase", "base_left_hand_up", 8f, -1, AnimationFlags.Loop);
-                        }
-                    }
-                    else
-                    {
-                        if (_currentAnimation[1] != "climb_up")
-                        {
-                            Character.Task.ClearAllImmediately();
-                            _currentAnimation[1] = "climb_up";
-                        }
-
-                        if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "laddersbase", "climb_up", 3))
-                        {
-                            Character.Task.PlayAnimation("laddersbase", "climb_up", 8f, -1, AnimationFlags.Loop);
-                        }
-                    }
-                }
-                
-                UpdateOnFootPosition(true, true, false);
-
-                return;
-            }
-            if (!IsOnLadder && Function.Call<bool>(Hash.GET_IS_TASK_ACTIVE, Character.Handle, ETasks.CLIMB_LADDER))
-            {
-                Character.Task.ClearAllImmediately();
-                _currentAnimation[1] = "";
-            }
-
-            if (IsVaulting)
-            {
-                if (!Character.IsVaulting)
-                {
-                    Character.Task.Climb();
-                }
-
-                UpdateOnFootPosition(true, true, false);
-
-                return;
-            }
-            if (!IsVaulting && Character.IsVaulting)
-            {
-                Character.Task.ClearAllImmediately();
-            }
-
-            if (IsOnFire && !Character.IsOnFire)
-            {
-                Character.IsInvincible = false;
-
-                Function.Call(Hash.START_ENTITY_FIRE, Character.Handle);
-            }
-            else if (!IsOnFire && Character.IsOnFire)
-            {
-                Function.Call(Hash.STOP_ENTITY_FIRE, Character.Handle);
-
-                Character.IsInvincible = true;
-
-                if (Character.IsDead)
-                {
-                    Character.Resurrect();
-                }
-            }
-
-            if (IsJumping)
-            {
-                if (!_lastIsJumping)
-                {
-                    _lastIsJumping = true;
-                    Character.Task.Jump();
-                }
-
-                UpdateOnFootPosition();
-                return;
-            }
-            _lastIsJumping = false;
-
-            if (IsRagdoll)
-            {
-                if (!Character.IsRagdoll)
-                {
-                    Character.CanRagdoll = true;
-                    Function.Call(Hash.SET_PED_TO_RAGDOLL, Character.Handle, 50000, 60000, 0, 1, 1, 1);
-                }
-
-                UpdateOnFootPosition(false, false, true);
-
-                return;
-            }
-            else
-            {
-                if (Character.IsRagdoll)
-                {
-                    Character.CanRagdoll = false;
-                    Character.Task.ClearAllImmediately();
-
-                    _isPlayingAnimation = true;
-                    _currentAnimation = new string[2] { "anim@sports@ballgame@handball@", "ball_get_up" };
-                    _animationStopTime = 0.7f;
-
-                    Function.Call(Hash.TASK_PLAY_ANIM, Character.Handle, LoadAnim("anim@sports@ballgame@handball@"), "ball_get_up", 12f, 12f, -1, 0, -10f, 1, 1, 1);
-                    return;
-                }
-                else if (_currentAnimation[1] == "ball_get_up")
-                {
-                    UpdateOnFootPosition(true, true, false);
-                    float currentTime = Function.Call<float>(Hash.GET_ENTITY_ANIM_CURRENT_TIME, Character.Handle, "anim@sports@ballgame@handball@", _currentAnimation[1]);
-
-                    if (currentTime < _animationStopTime)
-                    {
-                        return;
-                    }
-
-                    Character.Task.ClearAnimation(_currentAnimation[0], _currentAnimation[1]);
-                    Character.Task.ClearAll();
-                    _isPlayingAnimation = false;
-                    _currentAnimation = new string[2] { "", "" };
-                    _animationStopTime = 0;
-                }
             }
 
             CheckCurrentWeapon();
-
-            if (IsReloading)
-            {
-                if (!_isPlayingAnimation)
-                {
-                    string[] reloadingAnim = Character.GetReloadingAnimation();
-                    if (reloadingAnim != null)
-                    {
-                        _isPlayingAnimation = true;
-                        _currentAnimation = reloadingAnim;
-                        Character.Task.PlayAnimation(_currentAnimation[0], _currentAnimation[1], 8f, -1, AnimationFlags.AllowRotation | AnimationFlags.UpperBodyOnly);
-                    }
-                }
-            }
-            else if (_currentAnimation[1] == "reload_aim")
-            {
-                Character.Task.ClearAnimation(_currentAnimation[0], _currentAnimation[1]);
-                _isPlayingAnimation = false;
-                _currentAnimation = new string[2] { "", "" };
-            }
+            DisplayReloading();
 
             if (IsShooting)
             {
@@ -322,6 +114,29 @@ namespace CoopClient.Entities.Player
             }
         }
 
+        private void DisplayReloading()
+        {
+            if (IsReloading)
+            {
+                if (!_isPlayingAnimation)
+                {
+                    string[] reloadingAnim = Character.GetReloadingAnimation();
+                    if (reloadingAnim != null)
+                    {
+                        _isPlayingAnimation = true;
+                        _currentAnimation = reloadingAnim;
+                        Character.Task.PlayAnimation(_currentAnimation[0], _currentAnimation[1], 8f, -1, AnimationFlags.AllowRotation | AnimationFlags.UpperBodyOnly);
+                    }
+                }
+            }
+            else if (_currentAnimation[1] == "reload_aim")
+            {
+                Character.Task.ClearAnimation(_currentAnimation[0], _currentAnimation[1]);
+                _isPlayingAnimation = false;
+                _currentAnimation = new string[2] { "", "" };
+            }
+        }
+
         private void DisplayShooting()
         {
             if (!Character.IsInRange(Position, 0.5f))
@@ -351,6 +166,233 @@ namespace CoopClient.Entities.Player
             }
         }
         #endregion
+
+        private bool DisplayParachuteFreeFall()
+        {
+            if (IsInParachuteFreeFall)
+            {
+                Character.PositionNoOffset = Vector3.Lerp(Character.Position, Position + Velocity, 0.5f);
+                Character.Quaternion = Rotation.ToQuaternion();
+
+                if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "skydive@base", "free_idle", 3))
+                {
+                    Function.Call(Hash.TASK_PLAY_ANIM, Character.Handle, "skydive@base".LoadAnim(), "free_idle", 8f, 10f, -1, 0, -8f, 1, 1, 1);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool DisplayParachute()
+        {
+            if (IsParachuteOpen)
+            {
+                if (ParachuteProp == null)
+                {
+                    Model model = 1740193300.ModelRequest();
+                    if (model != null)
+                    {
+                        ParachuteProp = World.CreateProp(model, Character.Position, Character.Rotation, false, false);
+                        model.MarkAsNoLongerNeeded();
+                        ParachuteProp.IsPositionFrozen = true;
+                        ParachuteProp.IsCollisionEnabled = false;
+
+                        ParachuteProp.AttachTo(Character.Bones[Bone.SkelSpine2], new Vector3(3.6f, 0f, 0f), new Vector3(0f, 90f, 0f));
+                    }
+                    Character.Task.ClearAllImmediately();
+                    Character.Task.ClearSecondary();
+                }
+
+                Character.PositionNoOffset = Vector3.Lerp(Character.Position, Position + Velocity, 0.5f);
+                Character.Quaternion = Rotation.ToQuaternion();
+
+                if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "skydive@parachute@first_person", "chute_idle_right", 3))
+                {
+                    Function.Call(Hash.TASK_PLAY_ANIM, Character, "skydive@parachute@first_person".LoadAnim(), "chute_idle_right", 8f, 10f, -1, 0, -8f, 1, 1, 1);
+                }
+
+                return true;
+            }
+            if (ParachuteProp != null)
+            {
+                if (ParachuteProp.Exists())
+                {
+                    ParachuteProp.Delete();
+                }
+                ParachuteProp = null;
+            }
+
+            return false;
+        }
+
+        private bool DisplayOnLadder()
+        {
+            if (IsOnLadder)
+            {
+                if (Velocity.Z < 0)
+                {
+                    string anim = Velocity.Z < -2f ? "slide_climb_down" : "climb_down";
+                    if (_currentAnimation[1] != anim)
+                    {
+                        Character.Task.ClearAllImmediately();
+                        _currentAnimation[1] = anim;
+                    }
+
+                    if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "laddersbase", anim, 3))
+                    {
+                        Character.Task.PlayAnimation("laddersbase", anim, 8f, -1, AnimationFlags.Loop);
+                    }
+                }
+                else
+                {
+                    if (Math.Abs(Velocity.Z) < 0.5)
+                    {
+                        if (_currentAnimation[1] != "base_left_hand_up")
+                        {
+                            Character.Task.ClearAllImmediately();
+                            _currentAnimation[1] = "base_left_hand_up";
+                        }
+
+                        if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "laddersbase", "base_left_hand_up", 3))
+                        {
+                            Character.Task.PlayAnimation("laddersbase", "base_left_hand_up", 8f, -1, AnimationFlags.Loop);
+                        }
+                    }
+                    else
+                    {
+                        if (_currentAnimation[1] != "climb_up")
+                        {
+                            Character.Task.ClearAllImmediately();
+                            _currentAnimation[1] = "climb_up";
+                        }
+
+                        if (!Function.Call<bool>(Hash.IS_ENTITY_PLAYING_ANIM, Character.Handle, "laddersbase", "climb_up", 3))
+                        {
+                            Character.Task.PlayAnimation("laddersbase", "climb_up", 8f, -1, AnimationFlags.Loop);
+                        }
+                    }
+                }
+
+                UpdateOnFootPosition(true, true, false);
+                return true;
+            }
+            if (!IsOnLadder && Function.Call<bool>(Hash.GET_IS_TASK_ACTIVE, Character.Handle, ETasks.CLIMB_LADDER))
+            {
+                Character.Task.ClearAllImmediately();
+                _currentAnimation[1] = "";
+            }
+
+            return false;
+        }
+
+        private bool DisplayVaulting()
+        {
+            if (IsVaulting)
+            {
+                if (!Character.IsVaulting)
+                {
+                    Character.Task.Climb();
+                }
+
+                UpdateOnFootPosition(true, true, false);
+
+                return true;
+            }
+            if (!IsVaulting && Character.IsVaulting)
+            {
+                Character.Task.ClearAllImmediately();
+            }
+
+            return false;
+        }
+
+        private void DisplayOnFire()
+        {
+            if (IsOnFire && !Character.IsOnFire)
+            {
+                Character.IsInvincible = false;
+
+                Function.Call(Hash.START_ENTITY_FIRE, Character.Handle);
+            }
+            else if (!IsOnFire && Character.IsOnFire)
+            {
+                Function.Call(Hash.STOP_ENTITY_FIRE, Character.Handle);
+
+                Character.IsInvincible = true;
+
+                if (Character.IsDead)
+                {
+                    Character.Resurrect();
+                }
+            }
+        }
+
+        private bool DisplayJumping()
+        {
+            if (IsJumping)
+            {
+                if (!_lastIsJumping)
+                {
+                    _lastIsJumping = true;
+                    Character.Task.Jump();
+                }
+
+                UpdateOnFootPosition();
+                return true;
+            }
+            _lastIsJumping = false;
+            return false;
+        }
+
+        private bool DisplayRagdoll()
+        {
+            if (IsRagdoll)
+            {
+                if (!Character.IsRagdoll)
+                {
+                    Character.CanRagdoll = true;
+                    Function.Call(Hash.SET_PED_TO_RAGDOLL, Character.Handle, 50000, 60000, 0, 1, 1, 1);
+                }
+
+                UpdateOnFootPosition(false, false, true);
+                return true;
+            }
+            else
+            {
+                if (Character.IsRagdoll)
+                {
+                    Character.CanRagdoll = false;
+                    Character.Task.ClearAllImmediately();
+
+                    _isPlayingAnimation = true;
+                    _currentAnimation = new string[2] { "anim@sports@ballgame@handball@", "ball_get_up" };
+                    _animationStopTime = 0.7f;
+
+                    Function.Call(Hash.TASK_PLAY_ANIM, Character.Handle, "anim@sports@ballgame@handball@".LoadAnim(), "ball_get_up", 12f, 12f, -1, 0, -10f, 1, 1, 1);
+                    return true;
+                }
+                
+                if (_currentAnimation[1] == "ball_get_up")
+                {
+                    UpdateOnFootPosition(true, true, false);
+                    float currentTime = Function.Call<float>(Hash.GET_ENTITY_ANIM_CURRENT_TIME, Character.Handle, "anim@sports@ballgame@handball@", _currentAnimation[1]);
+
+                    if (currentTime < _animationStopTime)
+                    {
+                        return true;
+                    }
+
+                    Character.Task.ClearAnimation(_currentAnimation[0], _currentAnimation[1]);
+                    Character.Task.ClearAll();
+                    _isPlayingAnimation = false;
+                    _currentAnimation = new string[2] { "", "" };
+                    _animationStopTime = 0;
+                }
+            }
+
+            return false;
+        }
 
         private bool LastMoving;
         private void WalkTo()
@@ -449,23 +491,6 @@ namespace CoopClient.Entities.Player
             {
                 Character.Velocity = Velocity;
             }
-        }
-
-        private string LoadAnim(string anim)
-        {
-            ulong startTime = Util.GetTickCount64();
-
-            while (!Function.Call<bool>(Hash.HAS_ANIM_DICT_LOADED, anim))
-            {
-                Script.Yield();
-                Function.Call(Hash.REQUEST_ANIM_DICT, anim);
-                if (Util.GetTickCount64() - startTime >= 1000)
-                {
-                    break;
-                }
-            }
-
-            return anim;
         }
     }
 }

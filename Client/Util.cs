@@ -167,6 +167,22 @@ namespace CoopClient
             }
         }
 
+        public static string LoadAnim(this string anim)
+        {
+            ulong startTime = GetTickCount64();
+            while (!Function.Call<bool>(Hash.HAS_ANIM_DICT_LOADED, anim))
+            {
+                Script.Yield();
+                Function.Call(Hash.REQUEST_ANIM_DICT, anim);
+                if (GetTickCount64() - startTime >= 1000)
+                {
+                    break;
+                }
+            }
+
+            return anim;
+        }
+
         public static Model ModelRequest(this int hash)
         {
             Model model = new Model(hash);
