@@ -309,13 +309,15 @@ namespace CoopClient.Entities.Player
 
         private void DisplayOnFire()
         {
-            if (IsOnFire && !Character.IsOnFire)
+            if (IsOnFire)
             {
-                Character.IsInvincible = false;
-
-                Function.Call(Hash.START_ENTITY_FIRE, Character.Handle);
+                if (!Character.IsOnFire)
+                {
+                    Character.IsInvincible = false;
+                    Function.Call(Hash.START_ENTITY_FIRE, Character.Handle);
+                }
             }
-            else if (!IsOnFire && Character.IsOnFire)
+            else if (Character.IsOnFire)
             {
                 Function.Call(Hash.STOP_ENTITY_FIRE, Character.Handle);
 
