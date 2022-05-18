@@ -2,7 +2,7 @@
 # 🌐 MultiV - v1.0.0
 
 # 🧠 That's it
-MultiV Is based off the whole point about continuing projects on GitHub, and yeah we made this so people can have a better experience playing multiplayer in GTA 4.
+MultiV Is based off the whole point about continuing projects on GitHub, and yeah we made this so people can have a better experience playing multiplayer in GTA 5.
 
 # 📋 What would you need?
 - Visual Studio 2022
