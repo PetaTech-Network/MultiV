@@ -2,11 +2,7 @@
   <img src="https://ragecoop.online/assets/logo.0e546533.png?raw=true" alt="GTACoop:R Image"/>
 </p>
 
-# 🌐 RAGECOOP
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
+# 🌐 MultiV - v1.0.0
 
 # 🧠 That's it
 MultiV Is based off the whole point about continuing projects on GitHub, and yeah we made this so people can have a better experience playing multiplayer in GTA 4.
