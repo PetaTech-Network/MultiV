@@ -9,11 +9,9 @@
 [![Issues][issues-shield]][issues-url]
 
 # 🧠 That's it
-RAGECOOP is a multiplayer mod to play the story or some mods made for RAGECOOP with your buddy or just drive around with your buddy.
+MultiV Is based off the whole point about continuing projects on GitHub, and yeah we made this so people can have a better experience playing multiplayer in GTA 4.
 
-_Old name: GTACOOP:R_
-
-# 📋 Requirements
+# 📋 What would you need?
 - Visual Studio 2022
 - .NET 6.0
 - .NET Framework 4.8
@@ -26,7 +24,7 @@ _Old name: GTACOOP:R_
 - [Newtonsoft.Json](https://www.nuget.org/packages/Newtonsoft.Json/13.0.1)
 - [ClearScript](https://github.com/microsoft/ClearScript)
 
-# 🦆 Special thanks to
+# 🦆 Special thanks to these people who helped the original project.
 - [Makinolo](https://github.com/Makinolo), [oldnapalm](https://github.com/oldnapalm)
 - - For testing, ideas, contributions and the first modification with the API
 - [crosire](https://github.com/crosire)
