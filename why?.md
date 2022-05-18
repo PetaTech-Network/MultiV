@@ -1,6 +1,3 @@
-<p align="center">
-  <img src="https://ragecoop.online/assets/logo.0e546533.png?raw=true" alt="GTACoop:R Image"/>
-</p>
 
 # 🌐 MultiV - v1.0.0
 
